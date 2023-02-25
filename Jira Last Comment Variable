@@ -1,0 +1,32 @@
+
+issue.comments.last.body
+This JQL statement retrieves the body of the last comment added to the issue. You can use this in an automation rule with the "Send an email" action to include the last comment in the email notification.
+
+Here is an example of how to use the JQL statement in an automation rule to send an email notification with the last comment included:
+
+Go to the "Automation" tab in the Jira Service Desk project settings.
+Click the "Create rule" button.
+In the "Rule name" field, enter a name for the rule.
+In the "When" section, select the trigger that will cause the rule to run. For example, you might choose the "Issue is updated" trigger.
+In the "Then" section, click the "Add action" button and select the "Send an email" action.
+In the "To" field, enter the email address of the recipient.
+In the "Subject" field, enter the subject for the email.
+In the "Body" field, enter the body of the email. You can use the JQL statement issue.comments.last.body to include the last comment in the email. For example:
+Copy code
+Hello,
+
+A new comment has been added to the ticket:
+
+{issue.comments.last.body}
+
+Best regards,
+[Your name]
+Click "Save" to create the rule.
+Once the rule is set up, it will run whenever the issue is updated and will send an email notification with the last comment included in the body of the email.
+
+I hope this helps! Let me know if you have any questions.
+
+
+
+
+//

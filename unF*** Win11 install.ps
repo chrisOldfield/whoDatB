@@ -1,0 +1,200 @@
+@echo off
+
+rem Get the list of network hardware
+wmic nic get name,manufacturer,pnpdeviceid > hardware.txt
+
+rem Prompt the user to select their default device
+echo Please select your default network device from the following list:
+type hardware.txt
+set /p device=Enter the name of your default device:
+
+rem Get the manufacturer and PnP device ID of the selected device
+for /f "tokens=1,2,3" %%a in (hardware.txt) do (
+  if "%%a" == "%device%" (
+    set manufacturer=%%b
+    set pnpdeviceid=%%c
+  )
+)
+
+rem Check for available updates for the OEM drivers
+pnpdeviceid=%pnpdeviceid:~1,-1%
+wmic /namespace:\\root\wmi PATH MS_DRIVER_PROVIDER_WMI_Provider WHERE "PNPDeviceID='%pnpdeviceid%' AND Manufacturer='%manufacturer%'" CALL CheckForUpdates 0,1
+
+rem Install the updates
+wmic /namespace:\\root\wmi PATH MS_DRIVER_PROVIDER_WMI_Provider WHERE "PNPDeviceID='%pnpdeviceid%' AND Manufacturer='%manufacturer%'" CALL InstallUpdates 0,1
+
+echo Done.
+@echo off
+
+rem Get the list of network hardware
+wmic nic get name,manufacturer,pnpdeviceid > hardware.txt
+
+rem Prompt the user to select their default device
+echo Please select your default network device from the following list:
+type hardware.txt
+set /p device=Enter the name of your default device:
+
+rem Get the manufacturer and PnP device ID of the selected device
+for /f "tokens=1,2,3" %%a in (hardware.txt) do (
+  if "%%a" == "%device%" (
+    set manufacturer=%%b
+    set pnpdeviceid=%%c
+  )
+)
+
+rem Check for available updates for the OEM drivers
+pnpdeviceid=%pnpdeviceid:~1,-1%
+wmic /namespace:\\root\wmi PATH MS_DRIVER_PROVIDER_WMI_Provider WHERE "PNPDeviceID='%pnpdeviceid%' AND Manufacturer='%manufacturer%'" CALL CheckForUpdates 0,1
+
+rem Install the updates
+wmic /namespace:\\root\wmi PATH MS_DRIVER_PROVIDER_WMI_Provider WHERE "PNPDeviceID='%pnpdeviceid%' AND Manufacturer='%manufacturer%'" CALL InstallUpdates 0,1
+
+echo Done.
+
+
+rem windows 11 terminal command to ideitify all network hardware on a machine, then require user entry to select their default device from the list of hardware, and ensure all oem drivers for that device are up-to-date without using any of the windows system driver suggestions///
+
+--------------------------------------------------------------------------
+
+rem Here is a Windows command that you can use to scan for all settings, rules, and system utilities that are configured for local network sharing, force them to turn off their sharing functions unless they affect a core Windows feature for the current version of Windows, and list the running services:
+
+
+@echo off
+
+rem Scan for network sharing settings, rules, and utilities
+netsh advfirewall firewall show rule name=all | findstr /i "shared" > sharing.txt
+
+rem Turn off sharing for all items in the list, unless it affects a core Windows feature
+for /f "tokens=1,2,*" %%a in (sharing.txt) do (
+  if /i not "%%c" == "Core" (
+    echo Disabling sharing for: %%a %%b
+    netsh advfirewall firewall set rule name="%%a" new enable=no
+  )
+)
+
+rem Get the list of running services
+sc query state= all > services.txt
+
+echo Running services:
+type services.txt
+
+echo Done.
+
+
+
+
+
+rem This command uses the netsh utility to scan for network sharing settings, rules, and utilities, and turns off sharing for all items in the list that do not affect a core Windows feature. It then uses the sc utility to get a list of running services and displays it on the console.
+
+rem Keep in mind that this command is just a simple example, and more advanced techniques may be needed to effectively disable network sharing for all settings, rules, and utilities in a real-world scenario.
+
+
+
+rem Here is a Windows command that you can use to scan for all settings, rules, and system utilities that are configured for local network sharing, force them to turn off their sharing functions unless they affect a core Windows feature for the current version of Windows, and list the running services:
+
+
+@echo off
+
+rem Scan for network sharing settings, rules, and utilities
+netsh advfirewall firewall show rule name=all | findstr /i "shared" > sharing.txt
+
+rem Turn off sharing for all items in the list, unless it affects a core Windows feature
+for /f "tokens=1,2,*" %%a in (sharing.txt) do (
+  if /i not "%%c" == "Core" (
+    echo Disabling sharing for: %%a %%b
+    netsh advfirewall firewall set rule name="%%a" new enable=no
+  )
+)
+
+rem Get the list of running services
+sc query state= all > services.txt
+
+echo Running services:
+type services.txt
+
+echo Done.
+
+
+
+
+
+rem This command uses the netsh utility to scan for network sharing settings, rules, and utilities, and turns off sharing for all items in the list that do not affect a core Windows feature. It then uses the sc utility to get a list of running services and displays it on the console.
+
+rem Keep in mind that this command is just a simple example, and more advanced techniques may be needed to effectively disable network sharing for all settings, rules, and utilities in a real-world scenario.
+
+rem windows command to be run as administrator that purges all packages, files, device configurations, and path variables used with windows versions prior to that of the product license for the machine 
+
+
+
+rem Here is a Windows command that you can use to purge all packages, files, device configurations, and path variables used with Windows versions prior to that of the product license for the machine:
+
+rem This command uses the wmic utility to get a list of installed packages and their versions, and uninstalls any packages that are not compatible with the current product license. It also searches for and deletes any files that are not associated with the current product license, resets all device configurations to their default values, and removes any path variables that***
+
+
+@echo off
+
+rem Get the current product license for the machine
+for /f "skip=1" %%a in ('wmic os get caption') do (
+  set license=%%a
+)
+
+rem Get the list of installed packages
+wmic product get name,version > packages.txt
+
+rem Uninstall any packages that are not compatible with the current product license
+for /f "tokens=1,2" %%a in (packages.txt) do (
+  if /i not "%%b" == "%license%" (
+    echo Uninstalling package: %%a
+    wmic product where name="%%a" call uninstall /nointeractive
+  )
+)
+
+rem Delete any files that are not associated with the current product license
+for /f "tokens=*" %%a in ('dir /s /b ^| findstr /v "%license%"') do (
+  echo Deleting file: %%a
+  del "%%a"
+)
+
+rem Reset all device configurations to their default values
+wmic device call reset
+
+rem Remove any path variables that are not associated with the current product license
+setx path ""
+setx path "%systemroot%\system32;%systemroot%;%systemroot%\System32\Wbem"
+
+echo Done.
+
+----------------------------------------------------------------------
+@echo off
+
+rem Get the list of network hardware
+wmic nic get name,manufacturer,pnpdeviceid > hardware.txt
+
+rem Prompt the user to select their default device
+echo Please select your default network device from the following list:
+type hardware.txt
+set /p device=Enter the name of your default device:
+
+rem Get the manufacturer and PnP device ID of the selected device
+for /f "tokens=1,2,3" %%a in (hardware.txt) do (
+  if "%%a" == "%device%" (
+    set manufacturer=%%b
+    set pnpdeviceid=%%c
+  )
+)
+
+rem Check for available updates for the OEM drivers
+pnpdeviceid=%pnpdeviceid:~1,-1%
+wmic /namespace:\\root\wmi PATH MS_DRIVER_PROVIDER_WMI_Provider WHERE "PNPDeviceID='%pnpdeviceid%' AND Manufacturer='%manufacturer%'" CALL CheckForUpdates 0,1
+
+rem Install the updates
+wmic /namespace:\\root\wmi PATH MS_DRIVER_PROVIDER_WMI_Provider WHERE "PNPDeviceID='%pnpdeviceid%' AND Manufacturer='%manufacturer%'" CALL InstallUpdates 0,1
+
+echo Done.
+
+
+--------------------------------------------------
+
+
+
+
