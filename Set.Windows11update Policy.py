@@ -23,7 +23,7 @@ if not platform.release().startswith("11"):
 key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate", 0, winreg.KEY_SET_VALUE)
 winreg.SetValueEx(key, "ElevateNonAdmins", 0, winreg.REG_DWORD, 0)
 winreg.SetValueEx(key, "DeferFeatureUpdates", 0, winreg.REG_DWORD, 1)
-winreg.SetValue
+winreg.SetValueEx(key, "DeferFeatureUpdatesPeriodInDays", 0, winreg.REG_DWORD, 365)
 
 
 

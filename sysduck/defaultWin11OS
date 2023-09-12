@@ -1,0 +1,64 @@
+DELAY 500
+GUI r
+DELAY 500
+STRING powershell
+ENTER
+DELAY 500
+STRING # Check the operating system version
+$current_os = (Get-WmiObject Win32_OperatingSystem).Caption
+if ($current_os -ne "Microsoft Windows 11 Enterprise") {
+    Write-Host "This script is only for Windows 11 Enterprise systems."
+    exit
+}
+
+# Get the list of network hardware
+Get-WmiObject Win32_NetworkAdapter | Select-Object Name, Manufacturer, PnPDeviceID | Out-File -FilePath "hardware.txt"
+
+# Prompt the user to select their default device
+Write-Host "Please select your default network device from the following list:"
+Get-Content "hardware.txt"
+$device = Read-Host "Enter the name of your default device"
+
+# Get the manufacturer and PnP device ID of the selected device
+Get-Content "hardware.txt" | ForEach-Object {
+  if ($_ -match "^$device\s+(.+)\s+(.+)$") {
+    $manufacturer = $matches[1]
+    $pnpdeviceid = $matches[2].Substring(1, $matches[2].Length - 2)
+  }
+}
+
+# Check for available updates for the OEM drivers
+Get-WmiObject -Namespace "root\wmi" -Query "SELECT * FROM MS_DRIVER_PROVIDER_WMI_Provider WHERE PNPDeviceID='$pnpdeviceid' AND Manufacturer='$manufacturer'" | ForEach-Object {
+  $_.CheckForUpdates(0, 1)
+}
+
+# Install the updates
+Get-WmiObject -Namespace "root\wmi" -Query "SELECT * FROM MS_DRIVER_PROVIDER_WMI_Provider WHERE PNPDeviceID='$pnpdeviceid' AND Manufacturer='$manufacturer'" | ForEach-Object {
+  $_.InstallUpdates(0, 1)
+}
+
+# Delete any files that are not associated with the current product license
+Get-ChildItem -Path "C:\*" -Recurse -File | Where-Object {
+  $_.FullName -notmatch $license
+} | ForEach-Object {
+  Write-Host "Deleting file: $_"
+  Remove-Item -Path $_.FullName -Force
+}
+
+# Reset all device configurations to their default values
+& wmic device call reset
+
+# Remove any path variables that are not associated with the current product license
+$env:path = "$env:SystemRoot\system32;$env:SystemRoot;$env:SystemRoot\System32\Wbem"
+
+# Check the firewall rules
+# (replace with appropriate code)
+
+# Set the update policy
+$key = [Microsoft.Win32.Registry]::LocalMachine.OpenSubKey("SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate", $true)
+$key.SetValue("ElevateNonAdmins", 0, [Microsoft.Win32.RegistryValueKind]::DWord)
+$key.SetValue("DeferFeatureUpdates", 1, [Microsoft.Win32.RegistryValueKind]::DWord)
+$key.Close()
+
+Write-Host "Done."
+ENTER
